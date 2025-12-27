@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Detection {
+  id               String        @id @default(uuid())
+  timestamp        DateTime      @default(now())
+
+  // Frame metadata
+  frameWidth       Int
+  frameHeight      Int
+  processingTimeMs Float
+
+  // Detection counts
+  pureCount        Int
+  impureCount      Int
+  totalCount       Int
+  purityPercentage Float
+
+  // Session tracking
+  sessionId        String?
+  session          DetectionSession? @relation(fields: [sessionId], references: [id])
+
+  // Relationships
+  boundingBoxes    BoundingBox[]
+
+  @@index([timestamp])
+  @@index([sessionId])
+  @@index([purityPercentage])
+}
+
+model BoundingBox {
+  id          String    @id @default(uuid())
+  detectionId String
+  detection   Detection @relation(fields: [detectionId], references: [id], onDelete: Cascade)
+
+  // Box coordinates (normalized 0-1)
+  x           Float     // top-left x
+  y           Float     // top-left y
+  width       Float
+  height      Float
+
+  // Classification
+  classId     Int       // 0 = pure, 1 = impure
+  className   String    // "pure" or "impure"
+  confidence  Float     // 0-1
+
+  @@index([detectionId])
+  @@index([classId])
+}
+
+model DetectionSession {
+  id               String      @id @default(uuid())
+  startTime        DateTime    @default(now())
+  endTime          DateTime?
+
+  // Session statistics
+  totalFrames      Int         @default(0)
+  totalPureCount   Int         @default(0)
+  totalImpureCount Int         @default(0)
+  avgPurityPercent Float?
+
+  // Session metadata
+  cameraSource     String?
+  notes            String?
+
+  // Relationships
+  detections       Detection[]
+
+  @@index([startTime])
+}
