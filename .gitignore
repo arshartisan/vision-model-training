@@ -66,3 +66,41 @@ colab/*.png
 
 # Claude Code
 .claude/
+
+# Node.js / NPM
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# NestJS Backend
+salt-detection-backend/node_modules/
+salt-detection-backend/dist/
+salt-detection-backend/generated/
+salt-detection-backend/.env
+salt-detection-backend/*.log
+
+# Next.js Frontend
+salt-detection-frontend/node_modules/
+salt-detection-frontend/.next/
+salt-detection-frontend/out/
+salt-detection-frontend/.env.local
+salt-detection-frontend/*.log
+
+# Prisma
+salt-detection-backend/prisma/migrations/
+
+# Docker
+postgres_data/
+
+# Environment files (keep examples)
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
