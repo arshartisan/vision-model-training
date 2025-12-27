@@ -63,9 +63,9 @@ while True:
     detections = results[0].boxes
     class_ids = detections.cls.tolist() if len(detections) > 0 else []
 
-    # Count pure (0) and impure (1) - adjust based on your classes.txt order
-    pure_count = class_ids.count(0)
-    impure_count = class_ids.count(1)
+    # Count impure (0) and pure (1) - based on classes.txt order
+    impure_count = class_ids.count(0)
+    pure_count = class_ids.count(1)
     total_count = len(class_ids)
 
     # Draw results on frame
