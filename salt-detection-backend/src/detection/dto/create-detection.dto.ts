@@ -48,6 +48,20 @@ export class BoundingBoxDto {
   @Min(0)
   @Max(1)
   confidence: number;
+
+  @ApiProperty({ description: 'Whiteness percentage (0-100)', required: false })
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  @Max(100)
+  whitenessPercentage?: number;
+
+  @ApiProperty({ description: 'Quality score (0-100)', required: false })
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  @Max(100)
+  qualityScore?: number;
 }
 
 export class CreateDetectionDto {
@@ -92,6 +106,26 @@ export class CreateDetectionDto {
   @IsNumber()
   @IsOptional()
   roiPurityPercentage?: number;
+
+  @ApiProperty({ description: 'Average whiteness (0-100)', required: false })
+  @IsNumber()
+  @IsOptional()
+  avgWhiteness?: number;
+
+  @ApiProperty({ description: 'Average quality score (0-100)', required: false })
+  @IsNumber()
+  @IsOptional()
+  avgQualityScore?: number;
+
+  @ApiProperty({ description: 'ROI average whiteness (0-100)', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiAvgWhiteness?: number;
+
+  @ApiProperty({ description: 'ROI average quality score (0-100)', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiAvgQualityScore?: number;
 
   @ApiProperty({ type: [BoundingBoxDto], description: 'Detected bounding boxes' })
   @IsArray()
