@@ -11,7 +11,7 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
       className={cn(
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
         {
-          "bg-blue-500 text-white": variant === "default",
+          "bg-cyan-500 text-white": variant === "default",
           "bg-emerald-50 text-emerald-700 border border-emerald-200": variant === "success",
           "bg-amber-50 text-amber-700 border border-amber-200": variant === "warning",
           "bg-red-50 text-red-700 border border-red-200": variant === "destructive",
