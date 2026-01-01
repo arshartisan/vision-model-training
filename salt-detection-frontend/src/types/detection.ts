@@ -1,5 +1,12 @@
+export interface ROIConfig {
+  x: number;      // normalized 0-1, top-left x
+  y: number;      // normalized 0-1, top-left y
+  width: number;  // normalized 0-1
+  height: number; // normalized 0-1
+}
+
 export interface BoundingBox {
-  id: string;
+  id?: string;
   x: number;
   y: number;
   width: number;
@@ -8,6 +15,7 @@ export interface BoundingBox {
   className: "pure" | "impure";
   confidence: number;
   color: string;
+  insideROI?: boolean;
 }
 
 export interface Detection {
@@ -21,6 +29,11 @@ export interface Detection {
   totalCount: number;
   purityPercentage: number;
   sessionId?: string;
+  batchId?: string;
+  roiPureCount?: number;
+  roiImpureCount?: number;
+  roiTotalCount?: number;
+  roiPurityPercentage?: number;
   boundingBoxes: BoundingBox[];
 }
 
@@ -35,6 +48,37 @@ export interface DetectionResult {
   frameWidth: number;
   frameHeight: number;
   boundingBoxes: BoundingBox[];
+  // ROI-filtered counts
+  roiPureCount?: number;
+  roiImpureCount?: number;
+  roiTotalCount?: number;
+  roiPurityPercentage?: number;
+  // ROI configuration
+  roi?: ROIConfig;
+  // Batch info
+  currentBatchId?: string;
+  currentBatchNumber?: number;
+}
+
+export interface BatchStats {
+  pureCount: number;
+  impureCount: number;
+  totalCount: number;
+  purityPercentage: number;
+  frameCount: number;
+}
+
+export interface BatchSummary {
+  id: string;
+  batchNumber: number;
+  startTime: string;
+  endTime: string | null;
+  pureCount: number;
+  impureCount: number;
+  totalCount: number;
+  purityPercentage: number | null;
+  frameCount: number;
+  roi: ROIConfig;
 }
 
 export interface PaginatedResponse<T> {
