@@ -68,6 +68,31 @@ export class CreateDetectionDto {
   @IsOptional()
   sessionId?: string;
 
+  @ApiProperty({ description: 'Batch ID', required: false })
+  @IsString()
+  @IsOptional()
+  batchId?: string;
+
+  @ApiProperty({ description: 'ROI pure count', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiPureCount?: number;
+
+  @ApiProperty({ description: 'ROI impure count', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiImpureCount?: number;
+
+  @ApiProperty({ description: 'ROI total count', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiTotalCount?: number;
+
+  @ApiProperty({ description: 'ROI purity percentage', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiPurityPercentage?: number;
+
   @ApiProperty({ type: [BoundingBoxDto], description: 'Detected bounding boxes' })
   @IsArray()
   @ValidateNested({ each: true })
