@@ -35,6 +35,10 @@ export class DetectionService {
         roiImpureCount: dto.roiImpureCount ?? 0,
         roiTotalCount: dto.roiTotalCount ?? 0,
         roiPurityPercentage: dto.roiPurityPercentage,
+        avgWhiteness: dto.avgWhiteness,
+        avgQualityScore: dto.avgQualityScore,
+        roiAvgWhiteness: dto.roiAvgWhiteness,
+        roiAvgQualityScore: dto.roiAvgQualityScore,
         boundingBoxes: {
           create: dto.boundingBoxes.map((box) => ({
             x: box.x,
@@ -44,6 +48,8 @@ export class DetectionService {
             classId: box.classId,
             className: box.className,
             confidence: box.confidence,
+            whitenessPercentage: box.whitenessPercentage,
+            qualityScore: box.qualityScore,
           })),
         },
       },
