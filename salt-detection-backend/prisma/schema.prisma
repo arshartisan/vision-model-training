@@ -16,21 +16,32 @@ model Detection {
   frameHeight      Int
   processingTimeMs Float
 
-  // Detection counts
+  // Detection counts (all detected crystals)
   pureCount        Int
   impureCount      Int
   totalCount       Int
   purityPercentage Float
 
+  // ROI-filtered counts (only crystals inside ROI)
+  roiPureCount        Int      @default(0)
+  roiImpureCount      Int      @default(0)
+  roiTotalCount       Int      @default(0)
+  roiPurityPercentage Float?
+
   // Session tracking
   sessionId        String?
   session          DetectionSession? @relation(fields: [sessionId], references: [id])
+
+  // Batch tracking
+  batchId          String?
+  batch            Batch?    @relation(fields: [batchId], references: [id])
 
   // Relationships
   boundingBoxes    BoundingBox[]
 
   @@index([timestamp])
   @@index([sessionId])
+  @@index([batchId])
   @@index([purityPercentage])
 }
 
@@ -64,6 +75,13 @@ model DetectionSession {
   totalPureCount   Int         @default(0)
   totalImpureCount Int         @default(0)
   avgPurityPercent Float?
+  totalBatches     Int         @default(0)
+
+  // ROI configuration for the session (normalized 0-1)
+  roiX             Float       @default(0.05)
+  roiY             Float       @default(0.05)
+  roiWidth         Float       @default(0.9)
+  roiHeight        Float       @default(0.9)
 
   // Session metadata
   cameraSource     String?
@@ -71,6 +89,39 @@ model DetectionSession {
 
   // Relationships
   detections       Detection[]
+  batches          Batch[]
 
   @@index([startTime])
+}
+
+model Batch {
+  id               String           @id @default(uuid())
+  sessionId        String
+  session          DetectionSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  batchNumber      Int              // Sequential number within session
+  startTime        DateTime         @default(now())
+  endTime          DateTime?
+
+  // ROI settings used for this batch (normalized 0-1)
+  roiX             Float
+  roiY             Float
+  roiWidth         Float
+  roiHeight        Float
+
+  // Batch statistics (only crystals inside ROI)
+  pureCount        Int              @default(0)
+  impureCount      Int              @default(0)
+  totalCount       Int              @default(0)
+  purityPercentage Float?
+
+  // Frame count for this batch
+  frameCount       Int              @default(0)
+
+  // Relationships
+  detections       Detection[]
+
+  @@index([sessionId])
+  @@index([startTime])
+  @@index([batchNumber])
 }
