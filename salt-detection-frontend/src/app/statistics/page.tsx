@@ -69,9 +69,9 @@ export default function StatisticsPage() {
 
   const pieData = summary
     ? [
-        { name: "Pure", value: summary.totalPure },
-        { name: "Impure", value: summary.totalImpure },
-      ]
+      { name: "Pure", value: summary.totalPure },
+      { name: "Impure", value: summary.totalImpure },
+    ]
     : [];
 
   return (
@@ -88,7 +88,7 @@ export default function StatisticsPage() {
             <CardTitle className="text-sm font-medium text-gray-500">
               Total Detections
             </CardTitle>
-            <Activity className="h-4 w-4 text-blue-600" />
+            <Activity className="h-4 w-4 text-cyan-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
