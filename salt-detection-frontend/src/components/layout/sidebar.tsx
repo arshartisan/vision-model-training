@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, History, BarChart3, FlaskConical } from "lucide-react";
+import { LayoutDashboard, Eye, History, BarChart3, FlaskConical } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "History", href: "/history", icon: History },
+  { name: "Batches", href: "/history", icon: History },
+  { name: "Detections", href: "/detections", icon: Eye },
   { name: "Statistics", href: "/statistics", icon: BarChart3 },
 ];
 
