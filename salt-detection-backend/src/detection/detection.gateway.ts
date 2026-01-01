@@ -10,6 +10,7 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { InferenceService } from '../inference/inference.service';
+import { WhitenessService } from '../inference/whiteness.service';
 import { DetectionService } from './detection.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ROIService, ROIConfig } from '../roi/roi.service';
@@ -42,6 +43,7 @@ export class DetectionGateway
 
   constructor(
     private readonly inferenceService: InferenceService,
+    private readonly whitenessService: WhitenessService,
     private readonly detectionService: DetectionService,
     private readonly prisma: PrismaService,
     private readonly roiService: ROIService,
@@ -287,18 +289,31 @@ export class DetectionGateway
 
       // Get client settings
       const settings = this.clientSettings.get(client.id);
+      const roi = settings?.roi || this.roiService.getDefaultROI();
 
       // Calculate ROI-filtered statistics
       const roiStats = this.roiService.calculateROIStats(
         result.boundingBoxes,
-        settings?.roi || this.roiService.getDefaultROI(),
+        roi,
       );
 
       // Mark bounding boxes with ROI status
       const boundingBoxesWithROI = this.roiService.markBoxesWithROI(
         result.boundingBoxes,
-        settings?.roi || this.roiService.getDefaultROI(),
+        roi,
       );
+
+      // Calculate whiteness for each bounding box
+      const boundingBoxesWithWhiteness = await this.whitenessService.calculateWhiteness(
+        imageBuffer,
+        boundingBoxesWithROI,
+        result.frameWidth,
+        result.frameHeight,
+      );
+
+      // Calculate aggregate whiteness stats
+      const whitenesStats = this.whitenessService.calculateAggregateStats(boundingBoxesWithWhiteness);
+      const roiWhitenessStats = this.whitenessService.calculateROIAggregateStats(boundingBoxesWithWhiteness);
 
       // Save detection if enabled
       if (settings?.saveDetections && settings?.currentBatchId) {
@@ -312,7 +327,11 @@ export class DetectionGateway
           roiImpureCount: roiStats.impureCount,
           roiTotalCount: roiStats.totalCount,
           roiPurityPercentage: roiStats.purityPercentage,
-          boundingBoxes: result.boundingBoxes.map((box) => ({
+          avgWhiteness: whitenesStats.avgWhiteness,
+          avgQualityScore: whitenesStats.avgQualityScore,
+          roiAvgWhiteness: roiWhitenessStats.avgWhiteness,
+          roiAvgQualityScore: roiWhitenessStats.avgQualityScore,
+          boundingBoxes: boundingBoxesWithWhiteness.map((box) => ({
             x: box.x,
             y: box.y,
             width: box.width,
@@ -320,6 +339,8 @@ export class DetectionGateway
             classId: box.classId,
             className: box.className,
             confidence: box.confidence,
+            whitenessPercentage: box.whitenessPercentage,
+            qualityScore: box.qualityScore,
           })),
         });
 
@@ -341,6 +362,8 @@ export class DetectionGateway
           roiStats.pureCount,
           roiStats.impureCount,
           roiStats.totalCount,
+          roiWhitenessStats.avgWhiteness,
+          roiWhitenessStats.avgQualityScore,
         );
 
         // Get and emit current batch stats
@@ -352,15 +375,19 @@ export class DetectionGateway
         }
       }
 
-      // Build enhanced result with ROI info
+      // Build enhanced result with ROI and whiteness info
       const enhancedResult = {
         ...result,
         roiPureCount: roiStats.pureCount,
         roiImpureCount: roiStats.impureCount,
         roiTotalCount: roiStats.totalCount,
         roiPurityPercentage: roiStats.purityPercentage,
-        boundingBoxes: boundingBoxesWithROI,
-        roi: settings?.roi || this.roiService.getDefaultROI(),
+        avgWhiteness: whitenesStats.avgWhiteness,
+        avgQualityScore: whitenesStats.avgQualityScore,
+        roiAvgWhiteness: roiWhitenessStats.avgWhiteness,
+        roiAvgQualityScore: roiWhitenessStats.avgQualityScore,
+        boundingBoxes: boundingBoxesWithWhiteness,
+        roi,
         currentBatchId: settings?.currentBatchId,
         currentBatchNumber: settings?.currentBatchNumber || 0,
       };
@@ -368,7 +395,8 @@ export class DetectionGateway
       // Emit result to client
       this.logger.debug(
         `Sending detection result: ${result.boundingBoxes.length} boxes, ` +
-        `ROI: ${roiStats.pureCount} pure, ${roiStats.impureCount} impure`,
+        `ROI: ${roiStats.pureCount} pure, ${roiStats.impureCount} impure, ` +
+        `Whiteness: ${roiWhitenessStats.avgWhiteness.toFixed(1)}%`,
       );
       client.emit('detection_result', enhancedResult);
     } catch (error) {
