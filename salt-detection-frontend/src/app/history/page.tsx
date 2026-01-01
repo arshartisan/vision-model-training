@@ -22,6 +22,34 @@ function getPurityBgColor(purity: number | null | undefined): string {
   return "bg-red-50";
 }
 
+function getWhitenessColor(whiteness: number | null | undefined): string {
+  if (whiteness === null || whiteness === undefined) return "text-slate-400";
+  if (whiteness >= 80) return "text-blue-600";
+  if (whiteness >= 60) return "text-cyan-600";
+  return "text-slate-500";
+}
+
+function getWhitenessBgColor(whiteness: number | null | undefined): string {
+  if (whiteness === null || whiteness === undefined) return "bg-slate-100";
+  if (whiteness >= 80) return "bg-blue-50";
+  if (whiteness >= 60) return "bg-cyan-50";
+  return "bg-slate-100";
+}
+
+function getQualityColor(quality: number | null | undefined): string {
+  if (quality === null || quality === undefined) return "text-slate-400";
+  if (quality >= 70) return "text-amber-600";
+  if (quality >= 50) return "text-orange-500";
+  return "text-slate-500";
+}
+
+function getQualityBgColor(quality: number | null | undefined): string {
+  if (quality === null || quality === undefined) return "bg-slate-100";
+  if (quality >= 70) return "bg-amber-50";
+  if (quality >= 50) return "bg-orange-50";
+  return "bg-slate-100";
+}
+
 function formatDateTime(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleString("en-US", {
@@ -141,6 +169,8 @@ export default function HistoryPage() {
                       <th className="text-center py-3 px-4 font-semibold text-red-600">Impure</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Total</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Purity</th>
+                      <th className="text-center py-3 px-4 font-semibold text-blue-600">Whiteness</th>
+                      <th className="text-center py-3 px-4 font-semibold text-amber-600">Quality</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Frames</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Status</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Actions</th>
@@ -176,6 +206,24 @@ export default function HistoryPage() {
                           >
                             {batch.purityPercentage !== null && batch.purityPercentage !== undefined
                               ? `${batch.purityPercentage.toFixed(0)}%`
+                              : "--"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span
+                            className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${getWhitenessColor(batch.avgWhiteness)} ${getWhitenessBgColor(batch.avgWhiteness)}`}
+                          >
+                            {batch.avgWhiteness !== null && batch.avgWhiteness !== undefined
+                              ? `${batch.avgWhiteness.toFixed(1)}%`
+                              : "--"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span
+                            className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${getQualityColor(batch.avgQualityScore)} ${getQualityBgColor(batch.avgQualityScore)}`}
+                          >
+                            {batch.avgQualityScore !== null && batch.avgQualityScore !== undefined
+                              ? `${batch.avgQualityScore.toFixed(1)}`
                               : "--"}
                           </span>
                         </td>
