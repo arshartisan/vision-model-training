@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useDetectionStore } from "@/stores/detection-store";
 import { Card, CardContent } from "@/components/ui/card";
-import { Package, Sparkles, TrendingUp, CheckCircle2, Gem, AlertCircle } from "lucide-react";
+import { Package, Sparkles, TrendingUp, CheckCircle2, Gem, AlertCircle, Droplets, Award } from "lucide-react";
 
 export function BatchStatsCard() {
   const {
@@ -50,7 +50,7 @@ export function BatchStatsCard() {
   const getBatchStatus = () => {
     if (!isStreaming) return { text: "Idle", color: "text-slate-400" };
     if (currentBatchId) return { text: `#${currentBatchNumber}`, color: "text-slate-900" };
-    return { text: "Ready", color: "text-blue-500" };
+    return { text: "Ready", color: "text-cyan-500" };
   };
 
   const batchStatus = getBatchStatus();
@@ -67,14 +67,30 @@ export function BatchStatsCard() {
     return null;
   }, [currentResult]);
 
+  // Get current whiteness from frame or batch
+  const currentWhiteness = useMemo(() => {
+    if (currentResult && currentBatchId) {
+      return currentResult.roiAvgWhiteness ?? currentResult.avgWhiteness ?? null;
+    }
+    return currentBatchStats?.avgWhiteness ?? null;
+  }, [currentResult, currentBatchId, currentBatchStats]);
+
+  // Get current quality score from frame or batch
+  const currentQuality = useMemo(() => {
+    if (currentResult && currentBatchId) {
+      return currentResult.roiAvgQualityScore ?? currentResult.avgQualityScore ?? null;
+    }
+    return currentBatchStats?.avgQualityScore ?? null;
+  }, [currentResult, currentBatchId, currentBatchStats]);
+
   return (
     <div className="grid grid-cols-2  gap-4">
       {/* Current Batch */}
       <Card className="overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-50">
-              <Package className="h-5 w-5 text-blue-500" />
+            <div className="p-2 rounded-lg bg-cyan-50">
+              <Package className="h-5 w-5 text-cyan-500" />
             </div>
             <div>
               <p className="text-xs text-slate-500 font-medium">Current Batch</p>
@@ -148,6 +164,40 @@ export function BatchStatsCard() {
               <p className="text-xs text-slate-500 font-medium">Completed</p>
               <p className="text-2xl font-bold text-slate-900">
                 {batchHistory.length}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Whiteness */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-cyan-50">
+              <Droplets className="h-5 w-5 text-cyan-500" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Whiteness</p>
+              <p className="text-2xl font-bold text-cyan-600">
+                {currentWhiteness !== null ? `${currentWhiteness.toFixed(1)}%` : "N/A"}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quality Score */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-yellow-50">
+              <Award className="h-5 w-5 text-yellow-500" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Quality</p>
+              <p className="text-2xl font-bold text-yellow-600">
+                {currentQuality !== null ? `${currentQuality.toFixed(1)}` : "N/A"}
               </p>
             </div>
           </div>
