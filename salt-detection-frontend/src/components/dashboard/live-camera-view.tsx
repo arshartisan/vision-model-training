@@ -132,7 +132,7 @@ export function LiveCameraView() {
     ctx.fillText("DETECTION ZONE", roiX + 10, roiY + 20);
 
     // Draw bounding boxes
-    if (currentResult?.boundingBoxes?.length > 0) {
+    if (currentResult?.boundingBoxes && currentResult.boundingBoxes.length > 0) {
       currentResult.boundingBoxes.forEach((box) => {
         const x = box.x * displayWidth;
         const y = box.y * displayHeight;
@@ -253,8 +253,8 @@ export function LiveCameraView() {
       <CardHeader className="pb-4 border-b border-slate-100">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2.5 text-slate-900">
-            <div className="p-2 rounded-lg bg-blue-50">
-              <Camera className="h-5 w-5 text-blue-500" />
+            <div className="p-2 rounded-lg bg-cyan-50">
+              <Camera className="h-5 w-5 text-cyan-500" />
             </div>
             Live Detection
           </CardTitle>
@@ -273,7 +273,7 @@ export function LiveCameraView() {
               </div>
             )}
             {isStreaming && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-50 text-cyan-700 border border-cyan-200">
                 {fps} FPS
               </div>
             )}
