@@ -2,116 +2,204 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
-import { Detection, PaginatedResponse } from "@/types/detection";
+import { BatchSummary, PaginatedResponse } from "@/types/detection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatMs, formatPercentage } from "@/lib/utils";
-import { History, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { History, ChevronLeft, ChevronRight, Trash2, Package, Clock, CheckCircle, Timer } from "lucide-react";
+
+function getPurityColor(purity: number | null | undefined): string {
+  if (purity === null || purity === undefined) return "text-slate-400";
+  if (purity >= 80) return "text-emerald-600";
+  if (purity >= 60) return "text-yellow-600";
+  return "text-red-600";
+}
+
+function getPurityBgColor(purity: number | null | undefined): string {
+  if (purity === null || purity === undefined) return "bg-slate-100";
+  if (purity >= 80) return "bg-emerald-50";
+  if (purity >= 60) return "bg-yellow-50";
+  return "bg-red-50";
+}
+
+function formatDateTime(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
+function formatDuration(startTime: string, endTime: string | null): string {
+  if (!endTime) return "--";
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
+  const durationMs = end - start;
+  const seconds = Math.floor(durationMs / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${remainingSeconds}s`;
+}
 
 export default function HistoryPage() {
-  const [detections, setDetections] = useState<Detection[]>([]);
+  const [batches, setBatches] = useState<BatchSummary[]>([]);
   const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
 
-  const fetchDetections = async (page: number) => {
+  const fetchBatches = async (page: number) => {
     setLoading(true);
     try {
-      const response = (await api.getDetections({ page, limit: 10 })) as PaginatedResponse<Detection>;
-      setDetections(response.data);
+      const response = (await api.getBatches({ page, limit: 10 })) as PaginatedResponse<BatchSummary>;
+      setBatches(response.data);
       setMeta({
         page: response.meta.page,
         totalPages: response.meta.totalPages,
         total: response.meta.total,
       });
     } catch (error) {
-      console.error("Failed to fetch detections:", error);
+      console.error("Failed to fetch batches:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDetections(1);
+    fetchBatches(1);
   }, []);
 
   const handleDelete = async (id: string) => {
     try {
-      await api.deleteDetection(id);
-      fetchDetections(meta.page);
+      await api.deleteBatch(id);
+      fetchBatches(meta.page);
     } catch (error) {
-      console.error("Failed to delete detection:", error);
+      console.error("Failed to delete batch:", error);
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <History className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">Detection History</h1>
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-purple-50">
+            <History className="h-6 w-6 text-purple-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Batch History</h1>
+            <p className="text-sm text-slate-500">All completed detection batches</p>
+          </div>
         </div>
-        <Badge variant="outline">{meta.total} total detections</Badge>
+        <Badge variant="secondary" className="text-sm">
+          {meta.total} total batches
+        </Badge>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>All Detections</CardTitle>
+        <CardHeader className="border-b border-slate-100">
+          <CardTitle className="flex items-center gap-2 text-slate-900">
+            <Package className="h-5 w-5 text-slate-500" />
+            All Batches
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
-          ) : detections.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No detections found. Start detecting to see history.
+            <div className="text-center py-12 text-slate-500">
+              <div className="animate-spin h-8 w-8 border-2 border-purple-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+              Loading batches...
+            </div>
+          ) : batches.length === 0 ? (
+            <div className="text-center py-12 text-slate-400">
+              <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm font-medium">No batches found</p>
+              <p className="text-xs mt-1">Start a batch to see history here</p>
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium">Timestamp</th>
-                      <th className="text-left py-3 px-4 font-medium">Pure</th>
-                      <th className="text-left py-3 px-4 font-medium">Impure</th>
-                      <th className="text-left py-3 px-4 font-medium">Purity</th>
-                      <th className="text-left py-3 px-4 font-medium">Processing</th>
-                      <th className="text-left py-3 px-4 font-medium">Actions</th>
+                    <tr className="border-b border-slate-100 bg-slate-50">
+                      <th className="text-left py-3 px-4 font-semibold text-slate-600">Batch #</th>
+                      <th className="text-left py-3 px-4 font-semibold text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          Start Time
+                        </div>
+                      </th>
+                      <th className="text-left py-3 px-4 font-semibold text-slate-600">End Time</th>
+                      <th className="text-center py-3 px-4 font-semibold text-slate-600">
+                        <div className="flex items-center justify-center gap-1">
+                          <Timer className="h-3.5 w-3.5" />
+                          Duration
+                        </div>
+                      </th>
+                      <th className="text-center py-3 px-4 font-semibold text-emerald-600">Pure</th>
+                      <th className="text-center py-3 px-4 font-semibold text-red-600">Impure</th>
+                      <th className="text-center py-3 px-4 font-semibold text-slate-600">Total</th>
+                      <th className="text-center py-3 px-4 font-semibold text-slate-600">Purity</th>
+                      <th className="text-center py-3 px-4 font-semibold text-slate-600">Frames</th>
+                      <th className="text-center py-3 px-4 font-semibold text-slate-600">Status</th>
+                      <th className="text-center py-3 px-4 font-semibold text-slate-600">Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {detections.map((detection) => (
-                      <tr key={detection.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 text-sm">
-                          {formatDate(detection.timestamp)}
-                        </td>
+                  <tbody className="divide-y divide-slate-100">
+                    {batches.map((batch) => (
+                      <tr key={batch.id} className="hover:bg-slate-50 transition-colors">
                         <td className="py-3 px-4">
-                          <Badge variant="success">{detection.pureCount}</Badge>
+                          <span className="font-bold text-slate-900">#{batch.batchNumber}</span>
                         </td>
-                        <td className="py-3 px-4">
-                          <Badge variant="destructive">{detection.impureCount}</Badge>
+                        <td className="py-3 px-4 text-slate-600">
+                          {formatDateTime(batch.startTime)}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 text-slate-600">
+                          {batch.endTime ? formatDateTime(batch.endTime) : "--"}
+                        </td>
+                        <td className="py-3 px-4 text-center text-slate-600">
+                          {formatDuration(batch.startTime, batch.endTime)}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-semibold text-emerald-600">{batch.pureCount}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-semibold text-red-600">{batch.impureCount}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-medium text-slate-700">{batch.totalCount}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
                           <span
-                            className={`font-semibold ${
-                              detection.purityPercentage >= 80
-                                ? "text-green-600"
-                                : detection.purityPercentage >= 50
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
-                            }`}
+                            className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${getPurityColor(batch.purityPercentage)} ${getPurityBgColor(batch.purityPercentage)}`}
                           >
-                            {formatPercentage(detection.purityPercentage)}
+                            {batch.purityPercentage !== null && batch.purityPercentage !== undefined
+                              ? `${batch.purityPercentage.toFixed(0)}%`
+                              : "--"}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-sm text-gray-500">
-                          {formatMs(detection.processingTimeMs)}
+                        <td className="py-3 px-4 text-center text-slate-600">
+                          {batch.frameCount}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 text-center">
+                          {batch.endTime ? (
+                            <Badge variant="success" className="text-xs gap-1">
+                              <CheckCircle className="h-3 w-3" />
+                              Done
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs">
+                              In Progress
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-center">
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDelete(detection.id)}
+                            className="h-8 w-8"
+                            onClick={() => handleDelete(batch.id)}
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
@@ -123,15 +211,15 @@ export default function HistoryPage() {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-sm text-gray-500">
+              <div className="flex items-center justify-between p-4 border-t border-slate-100">
+                <p className="text-sm text-slate-500">
                   Page {meta.page} of {meta.totalPages}
                 </p>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => fetchDetections(meta.page - 1)}
+                    onClick={() => fetchBatches(meta.page - 1)}
                     disabled={meta.page === 1}
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -140,7 +228,7 @@ export default function HistoryPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => fetchDetections(meta.page + 1)}
+                    onClick={() => fetchBatches(meta.page + 1)}
                     disabled={meta.page === meta.totalPages}
                   >
                     Next
