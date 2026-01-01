@@ -14,6 +14,8 @@ export interface BatchSummary {
   purityPercentage: number | null;
   frameCount: number;
   roi: ROIConfig;
+  avgWhiteness: number | null;
+  avgQualityScore: number | null;
 }
 
 export interface BatchStats {
@@ -22,6 +24,8 @@ export interface BatchStats {
   totalCount: number;
   purityPercentage: number;
   frameCount: number;
+  avgWhiteness: number | null;
+  avgQualityScore: number | null;
 }
 
 @Injectable()
@@ -134,6 +138,8 @@ export class BatchService {
     pureCount: number,
     impureCount: number,
     totalCount: number,
+    avgWhiteness?: number,
+    avgQualityScore?: number,
   ): Promise<void> {
     const purityPercentage = totalCount > 0 ? (pureCount / totalCount) * 100 : 100;
 
@@ -144,6 +150,8 @@ export class BatchService {
         impureCount,      // SET, not increment
         totalCount,       // SET, not increment
         purityPercentage,
+        avgWhiteness,
+        avgQualityScore,
         frameCount: { increment: 1 },  // Still count frames for reference
       },
     });
@@ -160,6 +168,8 @@ export class BatchService {
         impureCount: true,
         totalCount: true,
         frameCount: true,
+        avgWhiteness: true,
+        avgQualityScore: true,
       },
     });
 
@@ -176,6 +186,8 @@ export class BatchService {
       totalCount: batch.totalCount,
       purityPercentage,
       frameCount: batch.frameCount,
+      avgWhiteness: batch.avgWhiteness,
+      avgQualityScore: batch.avgQualityScore,
     };
   }
 
@@ -289,6 +301,8 @@ export class BatchService {
     totalCount: number;
     purityPercentage: number | null;
     frameCount: number;
+    avgWhiteness: number | null;
+    avgQualityScore: number | null;
   }): BatchSummary {
     return {
       id: batch.id,
@@ -306,6 +320,8 @@ export class BatchService {
         width: batch.roiWidth,
         height: batch.roiHeight,
       },
+      avgWhiteness: batch.avgWhiteness,
+      avgQualityScore: batch.avgQualityScore,
     };
   }
 }
