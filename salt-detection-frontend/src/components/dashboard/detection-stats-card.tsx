@@ -38,9 +38,9 @@ export function DetectionStatsCard() {
       title: "Total Detected",
       value: currentResult ? currentResult.totalCount.toString() : "--",
       icon: Activity,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-500",
-      valueColor: "text-blue-600",
+      iconBg: "bg-cyan-50",
+      iconColor: "text-cyan-500",
+      valueColor: "text-cyan-600",
     },
     {
       title: "Processing Time",
