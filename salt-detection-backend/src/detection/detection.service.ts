@@ -14,8 +14,9 @@ export class DetectionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateDetectionDto): Promise<DetectionWithBoxes> {
-    const pureCount = dto.boundingBoxes.filter((b) => b.classId === 0).length;
-    const impureCount = dto.boundingBoxes.filter((b) => b.classId === 1).length;
+    // classId 0 = impure, classId 1 = pure (matching Python model)
+    const impureCount = dto.boundingBoxes.filter((b) => b.classId === 0).length;
+    const pureCount = dto.boundingBoxes.filter((b) => b.classId === 1).length;
     const totalCount = dto.boundingBoxes.length;
     const purityPercentage = totalCount > 0 ? (pureCount / totalCount) * 100 : 100;
 
@@ -29,6 +30,11 @@ export class DetectionService {
         totalCount,
         purityPercentage,
         sessionId: dto.sessionId,
+        batchId: dto.batchId,
+        roiPureCount: dto.roiPureCount ?? 0,
+        roiImpureCount: dto.roiImpureCount ?? 0,
+        roiTotalCount: dto.roiTotalCount ?? 0,
+        roiPurityPercentage: dto.roiPurityPercentage,
         boundingBoxes: {
           create: dto.boundingBoxes.map((box) => ({
             x: box.x,
