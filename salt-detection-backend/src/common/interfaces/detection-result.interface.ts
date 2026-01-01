@@ -8,6 +8,10 @@ export interface BoundingBoxResult {
   confidence: number;  // 0-1
   color: string;       // hex color for rendering
   insideROI?: boolean; // whether box center is inside ROI
+
+  // Whiteness metrics
+  whitenessPercentage?: number;  // 0-100, whiteness of crystal region
+  qualityScore?: number;          // 0-100, combined score
 }
 
 export interface ROIConfig {
@@ -33,6 +37,14 @@ export interface DetectionResult {
   roiImpureCount?: number;
   roiTotalCount?: number;
   roiPurityPercentage?: number;
+
+  // Whiteness aggregates (all detected)
+  avgWhiteness?: number;
+  avgQualityScore?: number;
+
+  // ROI-filtered whiteness aggregates
+  roiAvgWhiteness?: number;
+  roiAvgQualityScore?: number;
 
   // Bounding boxes for overlay
   boundingBoxes: BoundingBoxResult[];
