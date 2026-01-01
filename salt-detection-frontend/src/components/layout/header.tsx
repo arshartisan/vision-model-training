@@ -11,7 +11,7 @@ export function Header() {
     <header className="h-16 border-b border-slate-200 bg-white px-6 flex items-center justify-between">
       <div>
         <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
-          Salt Crystal Detection System
+          BrineX Vision
         </h1>
         <p className="text-sm text-slate-500">Real-time purity analysis powered by AI</p>
       </div>
