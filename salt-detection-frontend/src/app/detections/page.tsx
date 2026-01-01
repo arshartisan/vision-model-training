@@ -62,8 +62,8 @@ export default function DetectionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-blue-50">
-            <Eye className="h-6 w-6 text-blue-500" />
+          <div className="p-2 rounded-lg bg-cyan-50">
+            <Eye className="h-6 w-6 text-cyan-500" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Detections</h1>
@@ -85,7 +85,7 @@ export default function DetectionsPage() {
         <CardContent className="p-0">
           {loading ? (
             <div className="text-center py-12 text-slate-500">
-              <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
+              <div className="animate-spin h-8 w-8 border-2 border-cyan-500 border-t-transparent rounded-full mx-auto mb-3"></div>
               Loading detections...
             </div>
           ) : detections.length === 0 ? (
