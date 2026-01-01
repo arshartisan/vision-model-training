@@ -1,9 +1,9 @@
 "use client";
 
 import { LiveCameraView } from "@/components/dashboard/live-camera-view";
-import { DetectionStatsCard } from "@/components/dashboard/detection-stats-card";
+import { BatchStatsCard } from "@/components/dashboard/batch-stats-card";
 import { PurityGauge } from "@/components/dashboard/purity-gauge";
-import { RecentDetections } from "@/components/dashboard/recent-detections";
+import { BatchHistoryPanel } from "@/components/dashboard/batch-history-panel";
 
 export default function DashboardPage() {
   return (
@@ -18,8 +18,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <DetectionStatsCard />
+      {/* Batch Stats Cards */}
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -31,7 +30,8 @@ export default function DashboardPage() {
         {/* Right Sidebar */}
         <div className="space-y-6">
           <PurityGauge />
-          <RecentDetections />
+          <BatchHistoryPanel />
+          <BatchStatsCard />
         </div>
       </div>
     </div>
