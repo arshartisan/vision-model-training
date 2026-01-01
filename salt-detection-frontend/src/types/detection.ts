@@ -16,6 +16,8 @@ export interface BoundingBox {
   confidence: number;
   color: string;
   insideROI?: boolean;
+  whitenessPercentage?: number;
+  qualityScore?: number;
 }
 
 export interface Detection {
@@ -34,6 +36,10 @@ export interface Detection {
   roiImpureCount?: number;
   roiTotalCount?: number;
   roiPurityPercentage?: number;
+  avgWhiteness?: number;
+  avgQualityScore?: number;
+  roiAvgWhiteness?: number;
+  roiAvgQualityScore?: number;
   boundingBoxes: BoundingBox[];
 }
 
@@ -53,6 +59,11 @@ export interface DetectionResult {
   roiImpureCount?: number;
   roiTotalCount?: number;
   roiPurityPercentage?: number;
+  // Whiteness metrics
+  avgWhiteness?: number;
+  avgQualityScore?: number;
+  roiAvgWhiteness?: number;
+  roiAvgQualityScore?: number;
   // ROI configuration
   roi?: ROIConfig;
   // Batch info
@@ -66,6 +77,8 @@ export interface BatchStats {
   totalCount: number;
   purityPercentage: number;
   frameCount: number;
+  avgWhiteness: number | null;
+  avgQualityScore: number | null;
 }
 
 export interface BatchSummary {
@@ -79,6 +92,8 @@ export interface BatchSummary {
   purityPercentage: number | null;
   frameCount: number;
   roi: ROIConfig;
+  avgWhiteness: number | null;
+  avgQualityScore: number | null;
 }
 
 export interface PaginatedResponse<T> {
