@@ -28,6 +28,14 @@ model Detection {
   roiTotalCount       Int      @default(0)
   roiPurityPercentage Float?
 
+  // Whiteness metrics (all detected crystals)
+  avgWhiteness        Float?
+  avgQualityScore     Float?
+
+  // ROI-filtered whiteness metrics
+  roiAvgWhiteness     Float?
+  roiAvgQualityScore  Float?
+
   // Session tracking
   sessionId        String?
   session          DetectionSession? @relation(fields: [sessionId], references: [id])
@@ -61,6 +69,10 @@ model BoundingBox {
   className   String    // "pure" or "impure"
   confidence  Float     // 0-1
 
+  // Whiteness metrics
+  whitenessPercentage  Float?    // 0-100, whiteness of crystal region
+  qualityScore         Float?    // 0-100, combined score (isPure ? 1 : 0.3) * whiteness
+
   @@index([detectionId])
   @@index([classId])
 }
@@ -76,6 +88,10 @@ model DetectionSession {
   totalImpureCount Int         @default(0)
   avgPurityPercent Float?
   totalBatches     Int         @default(0)
+
+  // Session-level whiteness tracking
+  avgWhiteness     Float?
+  avgQualityScore  Float?
 
   // ROI configuration for the session (normalized 0-1)
   roiX             Float       @default(0.05)
@@ -114,6 +130,10 @@ model Batch {
   impureCount      Int              @default(0)
   totalCount       Int              @default(0)
   purityPercentage Float?
+
+  // Batch-level whiteness metrics
+  avgWhiteness     Float?
+  avgQualityScore  Float?
 
   // Frame count for this batch
   frameCount       Int              @default(0)
