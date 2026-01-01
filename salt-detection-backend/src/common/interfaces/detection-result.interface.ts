@@ -3,10 +3,18 @@ export interface BoundingBoxResult {
   y: number;           // normalized 0-1, top-left y
   width: number;       // normalized 0-1
   height: number;      // normalized 0-1
-  classId: number;     // 0 = pure, 1 = impure
+  classId: number;     // 0 = impure, 1 = pure (matching Python model)
   className: string;   // "pure" or "impure"
   confidence: number;  // 0-1
   color: string;       // hex color for rendering
+  insideROI?: boolean; // whether box center is inside ROI
+}
+
+export interface ROIConfig {
+  x: number;      // normalized 0-1, top-left x
+  y: number;      // normalized 0-1, top-left y
+  width: number;  // normalized 0-1
+  height: number; // normalized 0-1
 }
 
 export interface DetectionResult {
@@ -14,11 +22,17 @@ export interface DetectionResult {
   timestamp: number;
   processingTimeMs: number;
 
-  // Counts
+  // Counts (all detected)
   pureCount: number;
   impureCount: number;
   totalCount: number;
   purityPercentage: number;
+
+  // ROI-filtered counts
+  roiPureCount?: number;
+  roiImpureCount?: number;
+  roiTotalCount?: number;
+  roiPurityPercentage?: number;
 
   // Bounding boxes for overlay
   boundingBoxes: BoundingBoxResult[];
@@ -26,6 +40,13 @@ export interface DetectionResult {
   // Frame dimensions
   frameWidth: number;
   frameHeight: number;
+
+  // ROI configuration
+  roi?: ROIConfig;
+
+  // Batch info
+  currentBatchId?: string;
+  currentBatchNumber?: number;
 }
 
 export interface InferenceOutput {
