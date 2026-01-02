@@ -104,3 +104,7 @@ postgres_data/
 # Logs
 logs/
 *.log
+
+/docs/*
+/models/*
+
