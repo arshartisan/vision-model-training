@@ -59,6 +59,11 @@ inference/*.jpg
 inference/*.png
 inference/*.jpeg
 
+# Inference2 outputs (keep the script, ignore output images)
+inference2/*.jpg
+inference2/*.png
+inference2/*.jpeg
+
 # Colab test images
 colab/*.jfif
 colab/*.jpg
