@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Square, Play, Wifi, Cpu, Plus, Check, RefreshCw } from "lucide-react";
 
 const CAPTURE_SIZE = 320;
-const FRAME_INTERVAL = 5000; // 1 FPS
+const FRAME_INTERVAL = 1000; // 1 FPS
 
 export function LiveCameraView() {
   const containerRef = useRef<HTMLDivElement>(null);
