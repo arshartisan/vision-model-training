@@ -10,6 +10,7 @@ export interface BatchSummary {
   endTime: Date | null;
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number | null;
   frameCount: number;
@@ -21,6 +22,7 @@ export interface BatchSummary {
 export interface BatchStats {
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number;
   frameCount: number;
@@ -84,7 +86,7 @@ export class BatchService {
     });
 
     this.logger.log(
-      `Ended batch #${batch.batchNumber}: ${batch.pureCount} pure, ${batch.impureCount} impure, ${(batch.purityPercentage ?? 100).toFixed(1)}% purity`,
+      `Ended batch #${batch.batchNumber}: ${batch.pureCount} pure, ${batch.impureCount} impure, ${batch.unwantedCount} unwanted, ${(batch.purityPercentage ?? 100).toFixed(1)}% purity`,
     );
 
     return this.toBatchSummary(batch);
@@ -137,17 +139,21 @@ export class BatchService {
     batchId: string,
     pureCount: number,
     impureCount: number,
+    unwantedCount: number,
     totalCount: number,
     avgWhiteness?: number,
     avgQualityScore?: number,
   ): Promise<void> {
-    const purityPercentage = totalCount > 0 ? (pureCount / totalCount) * 100 : 100;
+    // Purity excludes unwanted: pure / (pure + impure)
+    const saltCount = pureCount + impureCount;
+    const purityPercentage = saltCount > 0 ? (pureCount / saltCount) * 100 : 100;
 
     await this.prisma.batch.update({
       where: { id: batchId },
       data: {
         pureCount,        // SET, not increment
         impureCount,      // SET, not increment
+        unwantedCount,    // SET, not increment
         totalCount,       // SET, not increment
         purityPercentage,
         avgWhiteness,
@@ -166,6 +172,7 @@ export class BatchService {
       select: {
         pureCount: true,
         impureCount: true,
+        unwantedCount: true,
         totalCount: true,
         frameCount: true,
         avgWhiteness: true,
@@ -175,14 +182,17 @@ export class BatchService {
 
     if (!batch) return null;
 
+    // Purity excludes unwanted: pure / (pure + impure)
+    const saltCount = batch.pureCount + batch.impureCount;
     const purityPercentage =
-      batch.totalCount > 0
-        ? (batch.pureCount / batch.totalCount) * 100
+      saltCount > 0
+        ? (batch.pureCount / saltCount) * 100
         : 100;
 
     return {
       pureCount: batch.pureCount,
       impureCount: batch.impureCount,
+      unwantedCount: batch.unwantedCount,
       totalCount: batch.totalCount,
       purityPercentage,
       frameCount: batch.frameCount,
@@ -298,6 +308,7 @@ export class BatchService {
     roiHeight: number;
     pureCount: number;
     impureCount: number;
+    unwantedCount: number;
     totalCount: number;
     purityPercentage: number | null;
     frameCount: number;
@@ -311,6 +322,7 @@ export class BatchService {
       endTime: batch.endTime,
       pureCount: batch.pureCount,
       impureCount: batch.impureCount,
+      unwantedCount: batch.unwantedCount,
       totalCount: batch.totalCount,
       purityPercentage: batch.purityPercentage,
       frameCount: batch.frameCount,
