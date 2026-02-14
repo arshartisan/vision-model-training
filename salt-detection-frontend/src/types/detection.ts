@@ -12,7 +12,7 @@ export interface BoundingBox {
   width: number;
   height: number;
   classId: number;
-  className: "pure" | "impure";
+  className: "pure" | "impure" | "unwanted";
   confidence: number;
   color: string;
   insideROI?: boolean;
@@ -28,12 +28,14 @@ export interface Detection {
   processingTimeMs: number;
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number;
   sessionId?: string;
   batchId?: string;
   roiPureCount?: number;
   roiImpureCount?: number;
+  roiUnwantedCount?: number;
   roiTotalCount?: number;
   roiPurityPercentage?: number;
   avgWhiteness?: number;
@@ -49,6 +51,7 @@ export interface DetectionResult {
   processingTimeMs: number;
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number;
   frameWidth: number;
@@ -57,6 +60,7 @@ export interface DetectionResult {
   // ROI-filtered counts
   roiPureCount?: number;
   roiImpureCount?: number;
+  roiUnwantedCount?: number;
   roiTotalCount?: number;
   roiPurityPercentage?: number;
   // Whiteness metrics
@@ -74,6 +78,7 @@ export interface DetectionResult {
 export interface BatchStats {
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number;
   frameCount: number;
@@ -88,6 +93,7 @@ export interface BatchSummary {
   endTime: string | null;
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number | null;
   frameCount: number;
@@ -112,6 +118,7 @@ export interface StatisticsSummary {
   totalDetections: number;
   totalPure: number;
   totalImpure: number;
+  totalUnwanted: number;
   averagePurity: number;
   averageProcessingTime: number;
   detectionsPerHour: number;
@@ -124,6 +131,7 @@ export interface HourlyStats {
   detections: number;
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   avgPurity: number;
 }
 
@@ -132,6 +140,7 @@ export interface DailyStats {
   detections: number;
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   avgPurity: number;
 }
 
