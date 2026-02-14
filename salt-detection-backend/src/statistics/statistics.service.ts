@@ -19,6 +19,7 @@ export class StatisticsService {
       select: {
         pureCount: true,
         impureCount: true,
+        unwantedCount: true,
         purityPercentage: true,
         processingTimeMs: true,
         timestamp: true,
@@ -30,6 +31,7 @@ export class StatisticsService {
         totalDetections: 0,
         totalPure: 0,
         totalImpure: 0,
+        totalUnwanted: 0,
         averagePurity: 100,
         averageProcessingTime: 0,
         detectionsPerHour: 0,
@@ -41,6 +43,7 @@ export class StatisticsService {
     const totalDetections = detections.length;
     const totalPure = detections.reduce((sum, d) => sum + d.pureCount, 0);
     const totalImpure = detections.reduce((sum, d) => sum + d.impureCount, 0);
+    const totalUnwanted = detections.reduce((sum, d) => sum + d.unwantedCount, 0);
     const averagePurity =
       detections.reduce((sum, d) => sum + d.purityPercentage, 0) / totalDetections;
     const averageProcessingTime =
@@ -57,6 +60,7 @@ export class StatisticsService {
       totalDetections,
       totalPure,
       totalImpure,
+      totalUnwanted,
       averagePurity: Math.round(averagePurity * 100) / 100,
       averageProcessingTime: Math.round(averageProcessingTime * 100) / 100,
       detectionsPerHour: Math.round(detectionsPerHour * 100) / 100,
@@ -82,6 +86,7 @@ export class StatisticsService {
       select: {
         pureCount: true,
         impureCount: true,
+        unwantedCount: true,
         purityPercentage: true,
         timestamp: true,
       },
@@ -90,11 +95,11 @@ export class StatisticsService {
     // Group by hour
     const hourlyData: Record<
       number,
-      { count: number; pure: number; impure: number; puritySum: number }
+      { count: number; pure: number; impure: number; unwanted: number; puritySum: number }
     > = {};
 
     for (let i = 0; i < 24; i++) {
-      hourlyData[i] = { count: 0, pure: 0, impure: 0, puritySum: 0 };
+      hourlyData[i] = { count: 0, pure: 0, impure: 0, unwanted: 0, puritySum: 0 };
     }
 
     detections.forEach((d) => {
@@ -102,6 +107,7 @@ export class StatisticsService {
       hourlyData[hour].count++;
       hourlyData[hour].pure += d.pureCount;
       hourlyData[hour].impure += d.impureCount;
+      hourlyData[hour].unwanted += d.unwantedCount;
       hourlyData[hour].puritySum += d.purityPercentage;
     });
 
@@ -110,6 +116,7 @@ export class StatisticsService {
       detections: data.count,
       pureCount: data.pure,
       impureCount: data.impure,
+      unwantedCount: data.unwanted,
       avgPurity: data.count > 0 ? Math.round((data.puritySum / data.count) * 100) / 100 : 100,
     }));
   }
@@ -130,6 +137,7 @@ export class StatisticsService {
       select: {
         pureCount: true,
         impureCount: true,
+        unwantedCount: true,
         purityPercentage: true,
         timestamp: true,
       },
@@ -141,17 +149,18 @@ export class StatisticsService {
     // Group by date
     const dailyData: Record<
       string,
-      { count: number; pure: number; impure: number; puritySum: number }
+      { count: number; pure: number; impure: number; unwanted: number; puritySum: number }
     > = {};
 
     detections.forEach((d) => {
       const dateKey = d.timestamp.toISOString().split('T')[0];
       if (!dailyData[dateKey]) {
-        dailyData[dateKey] = { count: 0, pure: 0, impure: 0, puritySum: 0 };
+        dailyData[dateKey] = { count: 0, pure: 0, impure: 0, unwanted: 0, puritySum: 0 };
       }
       dailyData[dateKey].count++;
       dailyData[dateKey].pure += d.pureCount;
       dailyData[dateKey].impure += d.impureCount;
+      dailyData[dateKey].unwanted += d.unwantedCount;
       dailyData[dateKey].puritySum += d.purityPercentage;
     });
 
@@ -160,6 +169,7 @@ export class StatisticsService {
       detections: data.count,
       pureCount: data.pure,
       impureCount: data.impure,
+      unwantedCount: data.unwanted,
       avgPurity: data.count > 0 ? Math.round((data.puritySum / data.count) * 100) / 100 : 100,
     }));
   }
