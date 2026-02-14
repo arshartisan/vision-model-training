@@ -14,11 +14,14 @@ export class DetectionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateDetectionDto): Promise<DetectionWithBoxes> {
-    // classId 0 = impure, classId 1 = pure (matching Python model)
+    // classId 0 = impure, classId 1 = pure, classId 2 = unwanted
     const impureCount = dto.boundingBoxes.filter((b) => b.classId === 0).length;
     const pureCount = dto.boundingBoxes.filter((b) => b.classId === 1).length;
+    const unwantedCount = dto.boundingBoxes.filter((b) => b.classId === 2).length;
     const totalCount = dto.boundingBoxes.length;
-    const purityPercentage = totalCount > 0 ? (pureCount / totalCount) * 100 : 100;
+    // Purity excludes unwanted: pure / (pure + impure)
+    const saltCount = pureCount + impureCount;
+    const purityPercentage = saltCount > 0 ? (pureCount / saltCount) * 100 : 100;
 
     return this.prisma.detection.create({
       data: {
@@ -27,12 +30,14 @@ export class DetectionService {
         processingTimeMs: dto.processingTimeMs,
         pureCount,
         impureCount,
+        unwantedCount,
         totalCount,
         purityPercentage,
         sessionId: dto.sessionId,
         batchId: dto.batchId,
         roiPureCount: dto.roiPureCount ?? 0,
         roiImpureCount: dto.roiImpureCount ?? 0,
+        roiUnwantedCount: dto.roiUnwantedCount ?? 0,
         roiTotalCount: dto.roiTotalCount ?? 0,
         roiPurityPercentage: dto.roiPurityPercentage,
         avgWhiteness: dto.avgWhiteness,

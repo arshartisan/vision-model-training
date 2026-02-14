@@ -97,6 +97,11 @@ export class CreateDetectionDto {
   @IsOptional()
   roiImpureCount?: number;
 
+  @ApiProperty({ description: 'ROI unwanted count', required: false })
+  @IsNumber()
+  @IsOptional()
+  roiUnwantedCount?: number;
+
   @ApiProperty({ description: 'ROI total count', required: false })
   @IsNumber()
   @IsOptional()

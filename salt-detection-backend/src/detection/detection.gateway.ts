@@ -315,16 +315,20 @@ export class DetectionGateway
       const whitenesStats = this.whitenessService.calculateAggregateStats(boundingBoxesWithWhiteness);
       const roiWhitenessStats = this.whitenessService.calculateROIAggregateStats(boundingBoxesWithWhiteness);
 
+      // Capture batch ID to avoid race condition with concurrent end_batch events
+      const activeBatchId = settings?.currentBatchId;
+
       // Save detection if enabled
-      if (settings?.saveDetections && settings?.currentBatchId) {
+      if (settings?.saveDetections && activeBatchId) {
         await this.detectionService.create({
           frameWidth: result.frameWidth,
           frameHeight: result.frameHeight,
           processingTimeMs: result.processingTimeMs,
           sessionId: settings.sessionId,
-          batchId: settings.currentBatchId,
+          batchId: activeBatchId,
           roiPureCount: roiStats.pureCount,
           roiImpureCount: roiStats.impureCount,
+          roiUnwantedCount: roiStats.unwantedCount,
           roiTotalCount: roiStats.totalCount,
           roiPurityPercentage: roiStats.purityPercentage,
           avgWhiteness: whitenesStats.avgWhiteness,
@@ -352,15 +356,17 @@ export class DetectionGateway
               totalFrames: { increment: 1 },
               totalPureCount: { increment: roiStats.pureCount },
               totalImpureCount: { increment: roiStats.impureCount },
+              totalUnwantedCount: { increment: roiStats.unwantedCount },
             },
           });
         }
 
         // Update batch snapshot (SET current frame counts, not accumulate)
         await this.batchService.setCurrentBatchSnapshot(
-          settings.currentBatchId,
+          activeBatchId,
           roiStats.pureCount,
           roiStats.impureCount,
+          roiStats.unwantedCount,
           roiStats.totalCount,
           roiWhitenessStats.avgWhiteness,
           roiWhitenessStats.avgQualityScore,
@@ -368,7 +374,7 @@ export class DetectionGateway
 
         // Get and emit current batch stats
         const batchStats = await this.batchService.getCurrentBatchStats(
-          settings.currentBatchId,
+          activeBatchId,
         );
         if (batchStats) {
           client.emit('batch_stats_updated', batchStats);
@@ -380,6 +386,7 @@ export class DetectionGateway
         ...result,
         roiPureCount: roiStats.pureCount,
         roiImpureCount: roiStats.impureCount,
+        roiUnwantedCount: roiStats.unwantedCount,
         roiTotalCount: roiStats.totalCount,
         roiPurityPercentage: roiStats.purityPercentage,
         avgWhiteness: whitenesStats.avgWhiteness,
@@ -395,7 +402,7 @@ export class DetectionGateway
       // Emit result to client
       this.logger.debug(
         `Sending detection result: ${result.boundingBoxes.length} boxes, ` +
-        `ROI: ${roiStats.pureCount} pure, ${roiStats.impureCount} impure, ` +
+        `ROI: ${roiStats.pureCount} pure, ${roiStats.impureCount} impure, ${roiStats.unwantedCount} unwanted, ` +
         `Whiteness: ${roiWhitenessStats.avgWhiteness.toFixed(1)}%`,
       );
       client.emit('detection_result', enhancedResult);
@@ -468,10 +475,10 @@ export class DetectionGateway
       },
     });
 
-    // Calculate average purity
-    const totalCount = session.totalPureCount + session.totalImpureCount;
+    // Calculate average purity (excludes unwanted)
+    const saltCount = session.totalPureCount + session.totalImpureCount;
     const avgPurity =
-      totalCount > 0 ? (session.totalPureCount / totalCount) * 100 : 100;
+      saltCount > 0 ? (session.totalPureCount / saltCount) * 100 : 100;
 
     const updatedSession = await this.prisma.detectionSession.update({
       where: { id: sessionId },
@@ -483,6 +490,7 @@ export class DetectionGateway
       totalFrames: updatedSession.totalFrames,
       totalPure: updatedSession.totalPureCount,
       totalImpure: updatedSession.totalImpureCount,
+      totalUnwanted: updatedSession.totalUnwantedCount,
       avgPurity: updatedSession.avgPurityPercent,
       totalBatches: updatedSession.totalBatches,
       duration:
