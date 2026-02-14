@@ -11,6 +11,7 @@ export interface ROIConfig {
 export interface ROIStats {
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number;
 }
@@ -69,19 +70,23 @@ export class ROIService {
 
   /**
    * Calculate purity statistics for boxes inside the ROI
-   * classId 0 = impure, classId 1 = pure
+   * classId 0 = impure, classId 1 = pure, classId 2 = unwanted
+   * Purity excludes unwanted: pure / (pure + impure)
    */
   calculateROIStats(boxes: BoundingBoxResult[], roi: ROIConfig): ROIStats {
     const insideBoxes = this.filterByROI(boxes, roi);
     const pureCount = insideBoxes.filter((b) => b.classId === 1).length;
     const impureCount = insideBoxes.filter((b) => b.classId === 0).length;
+    const unwantedCount = insideBoxes.filter((b) => b.classId === 2).length;
     const totalCount = insideBoxes.length;
+    const saltCount = pureCount + impureCount;
     const purityPercentage =
-      totalCount > 0 ? (pureCount / totalCount) * 100 : 100;
+      saltCount > 0 ? (pureCount / saltCount) * 100 : 100;
 
     return {
       pureCount,
       impureCount,
+      unwantedCount,
       totalCount,
       purityPercentage,
     };
