@@ -108,6 +108,7 @@ export default function DetectionsPage() {
                       </th>
                       <th className="text-center py-3 px-4 font-semibold text-emerald-600">Pure</th>
                       <th className="text-center py-3 px-4 font-semibold text-red-600">Impure</th>
+                      <th className="text-center py-3 px-4 font-semibold text-orange-600">Unwanted</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Total</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Purity</th>
                       <th className="text-center py-3 px-4 font-semibold text-slate-600">Processing</th>
@@ -119,6 +120,7 @@ export default function DetectionsPage() {
                     {detections.map((detection) => {
                       const pureCount = detection.roiPureCount ?? detection.pureCount;
                       const impureCount = detection.roiImpureCount ?? detection.impureCount;
+                      const unwantedCount = detection.roiUnwantedCount ?? detection.unwantedCount;
                       const totalCount = detection.roiTotalCount ?? detection.totalCount;
                       const purity = detection.roiPurityPercentage ?? detection.purityPercentage;
 
@@ -132,6 +134,9 @@ export default function DetectionsPage() {
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span className="font-semibold text-red-600">{impureCount}</span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="font-semibold text-orange-600">{unwantedCount}</span>
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span className="font-medium text-slate-700">{totalCount}</span>
