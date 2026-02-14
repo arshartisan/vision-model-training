@@ -47,7 +47,8 @@ export class WhitenessService {
         );
 
         const isPure = box.className === 'pure';
-        const qualityScore = this.calculateQualityScore(isPure, whitenessPercentage);
+        const isUnwanted = box.className === 'unwanted';
+        const qualityScore = this.calculateQualityScore(isPure, whitenessPercentage, isUnwanted);
 
         results.push({
           ...box,
@@ -147,8 +148,10 @@ export class WhitenessService {
    * Calculate combined quality score
    * Pure crystals get full credit for whiteness
    * Impure crystals are penalized (×0.3)
+   * Unwanted items get 0 (not salt crystals)
    */
-  calculateQualityScore(isPure: boolean, whitenessPercentage: number): number {
+  calculateQualityScore(isPure: boolean, whitenessPercentage: number, isUnwanted: boolean = false): number {
+    if (isUnwanted) return 0;
     const multiplier = isPure ? 1.0 : 0.3;
     return whitenessPercentage * multiplier;
   }

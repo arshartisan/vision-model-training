@@ -7,8 +7,8 @@ export class PostprocessingService {
   private readonly confidenceThreshold: number;
   private readonly iouThreshold: number;
   private readonly inputSize: number;
-  private readonly classNames = ['impure', 'pure']; // Match Python: class0=impure, class1=pure
-  private readonly classColors = ['#ef4444', '#22c55e']; // red for impure (0), green for pure (1)
+  private readonly classNames = ['impure', 'pure', 'unwanted']; // class0=impure, class1=pure, class2=unwanted
+  private readonly classColors = ['#ef4444', '#22c55e', '#f97316']; // red for impure (0), green for pure (1), orange for unwanted (2)
 
   constructor() {
     this.confidenceThreshold = parseFloat(process.env.CONFIDENCE_THRESHOLD || '0.5');
@@ -18,8 +18,8 @@ export class PostprocessingService {
 
   /**
    * Process YOLO output tensor
-   * YOLOv8 output format: [1, 6, 2100] for 320x320 input
-   * - 6 = 4 (x, y, w, h) + 2 (class scores for pure, impure)
+   * YOLOv8 output format: [1, 7, 2100] for 320x320 input
+   * - 7 = 4 (x, y, w, h) + 3 (class scores for impure, pure, unwanted)
    * - 2100 = number of predictions
    */
   processOutput(
@@ -27,7 +27,7 @@ export class PostprocessingService {
     originalWidth: number,
     originalHeight: number,
   ): BoundingBoxResult[] {
-    const numClasses = 2; // pure, impure
+    const numClasses = 3; // impure, pure, unwanted
     const numPredictions = outputData.length / (4 + numClasses);
 
     const candidates: {

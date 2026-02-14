@@ -120,12 +120,15 @@ export class InferenceService implements OnModuleInit {
     const endTime = performance.now();
     const processingTimeMs = endTime - startTime;
 
-    // Calculate counts (Match Python: classId 0=impure, classId 1=pure)
+    // Calculate counts (classId 0=impure, classId 1=pure, classId 2=unwanted)
     const impureCount = boundingBoxes.filter((b) => b.classId === 0).length;
     const pureCount = boundingBoxes.filter((b) => b.classId === 1).length;
+    const unwantedCount = boundingBoxes.filter((b) => b.classId === 2).length;
     const totalCount = boundingBoxes.length;
+    // Purity excludes unwanted: pure / (pure + impure)
+    const saltCount = pureCount + impureCount;
     const purityPercentage =
-      totalCount > 0 ? (pureCount / totalCount) * 100 : 100;
+      saltCount > 0 ? (pureCount / saltCount) * 100 : 100;
 
     return {
       frameId: uuidv4(),
@@ -133,6 +136,7 @@ export class InferenceService implements OnModuleInit {
       processingTimeMs,
       pureCount,
       impureCount,
+      unwantedCount,
       totalCount,
       purityPercentage,
       boundingBoxes,
