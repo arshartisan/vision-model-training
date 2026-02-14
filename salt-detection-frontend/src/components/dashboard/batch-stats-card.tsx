@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useDetectionStore } from "@/stores/detection-store";
 import { Card, CardContent } from "@/components/ui/card";
-import { Package, Sparkles, TrendingUp, CheckCircle2, Gem, AlertCircle, Droplets, Award } from "lucide-react";
+import { Package, Sparkles, TrendingUp, CheckCircle2, Gem, AlertCircle, AlertTriangle, Droplets, Award } from "lucide-react";
 
 export function BatchStatsCard() {
   const {
@@ -61,7 +61,8 @@ export function BatchStatsCard() {
       return {
         pure: currentResult.roiPureCount ?? 0,
         impure: currentResult.roiImpureCount ?? 0,
-        total: (currentResult.roiPureCount ?? 0) + (currentResult.roiImpureCount ?? 0),
+        unwanted: currentResult.roiUnwantedCount ?? 0,
+        total: (currentResult.roiPureCount ?? 0) + (currentResult.roiImpureCount ?? 0) + (currentResult.roiUnwantedCount ?? 0),
       };
     }
     return null;
@@ -84,7 +85,7 @@ export function BatchStatsCard() {
   }, [currentResult, currentBatchId, currentBatchStats]);
 
   return (
-    <div className="grid grid-cols-2  gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
       {/* Current Batch */}
       <Card className="overflow-hidden">
         <CardContent className="p-4">
@@ -130,6 +131,23 @@ export function BatchStatsCard() {
               <p className="text-xs text-slate-500 font-medium">Impure</p>
               <p className="text-2xl font-bold text-red-600">
                 {currentCounts ? currentCounts.impure : 0}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Current Detection - Unwanted */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-orange-50">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Unwanted</p>
+              <p className="text-2xl font-bold text-orange-600">
+                {currentCounts ? currentCounts.unwanted : 0}
               </p>
             </div>
           </div>

@@ -78,6 +78,7 @@ export function BatchHistoryPanel() {
                   <th className="text-center py-3 px-4 font-semibold text-slate-600">Duration</th>
                   <th className="text-center py-3 px-4 font-semibold text-emerald-600">Pure</th>
                   <th className="text-center py-3 px-4 font-semibold text-red-600">Impure</th>
+                  <th className="text-center py-3 px-4 font-semibold text-orange-600">Unwanted</th>
                   <th className="text-center py-3 px-4 font-semibold text-slate-600">Total</th>
                   <th className="text-center py-3 px-4 font-semibold text-slate-600">Purity</th>
                   <th className="text-center py-3 px-4 font-semibold text-slate-600">Status</th>
@@ -108,6 +109,11 @@ export function BatchHistoryPanel() {
                     <td className="py-3 px-4 text-center">
                       <span className="font-semibold text-red-600">
                         {batch.impureCount}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="font-semibold text-orange-600">
+                        {batch.unwantedCount}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">

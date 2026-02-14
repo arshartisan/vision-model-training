@@ -50,6 +50,10 @@ export function RecentDetections() {
                         <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
                         {result.impureCount} Impure
                       </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 text-xs font-medium border border-orange-100">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        {result.unwantedCount} Unwanted
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-400">
                       <Clock className="h-3 w-3" />

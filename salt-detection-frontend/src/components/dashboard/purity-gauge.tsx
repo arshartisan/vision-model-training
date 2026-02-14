@@ -62,7 +62,7 @@ export function PurityGauge() {
         </div>
 
         {/* Legend */}
-        <div className="mt-6 flex gap-6 text-sm">
+        <div className="mt-6 flex gap-4 text-sm">
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-100">
             <div className="w-3 h-3 rounded-full bg-emerald-500" />
             <span className="font-medium text-emerald-700">Pure: {currentResult?.pureCount ?? 0}</span>
@@ -70,6 +70,10 @@ export function PurityGauge() {
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-red-50 border border-red-100">
             <div className="w-3 h-3 rounded-full bg-red-500" />
             <span className="font-medium text-red-700">Impure: {currentResult?.impureCount ?? 0}</span>
+          </div>
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-orange-50 border border-orange-100">
+            <div className="w-3 h-3 rounded-full bg-orange-500" />
+            <span className="font-medium text-orange-700">Unwanted: {currentResult?.unwantedCount ?? 0}</span>
           </div>
         </div>
       </CardContent>

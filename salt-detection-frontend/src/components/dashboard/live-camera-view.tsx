@@ -145,7 +145,7 @@ export function LiveCameraView() {
         let opacity: number;
 
         if (isInside) {
-          boxColor = box.className === "pure" ? "#10b981" : "#ef4444";
+          boxColor = box.className === "pure" ? "#10b981" : box.className === "unwanted" ? "#f97316" : "#ef4444";
           opacity = 1;
         } else {
           boxColor = "#6b7280"; // Gray for outside ROI
@@ -352,6 +352,10 @@ export function LiveCameraView() {
                   <div className="text-slate-400 text-xs">Impure</div>
                 </div>
                 <div className="text-center">
+                  <div className="text-orange-400 text-lg font-bold">{currentBatchStats.unwantedCount}</div>
+                  <div className="text-slate-400 text-xs">Unwanted</div>
+                </div>
+                <div className="text-center">
                   <div className="text-yellow-400 text-lg font-bold">
                     {currentBatchStats.purityPercentage.toFixed(0)}%
                   </div>
@@ -371,6 +375,10 @@ export function LiveCameraView() {
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/90 text-white text-sm font-medium backdrop-blur-sm">
                 <div className="w-2 h-2 rounded-full bg-white" />
                 Impure: {currentResult.roiImpureCount ?? currentResult.impureCount}
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/90 text-white text-sm font-medium backdrop-blur-sm">
+                <div className="w-2 h-2 rounded-full bg-white" />
+                Unwanted: {currentResult.roiUnwantedCount ?? currentResult.unwantedCount}
               </div>
             </div>
           )}
