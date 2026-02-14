@@ -7,8 +7,8 @@ from ultralytics import YOLO
 import os
 
 # Paths
-MODEL_PATH = "C:/Development/python/yolo/inference/best.pt"
-OUTPUT_DIR = "C:/Development/python/yolo/inference"
+MODEL_PATH = "C:/Development/python/yolo/inference3/best.pt"
+OUTPUT_DIR = "C:/Development/python/yolo/inference3"
 
 def convert_to_onnx():
     print(f"Loading model from: {MODEL_PATH}")
