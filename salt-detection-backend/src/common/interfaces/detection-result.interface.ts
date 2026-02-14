@@ -3,8 +3,8 @@ export interface BoundingBoxResult {
   y: number;           // normalized 0-1, top-left y
   width: number;       // normalized 0-1
   height: number;      // normalized 0-1
-  classId: number;     // 0 = impure, 1 = pure (matching Python model)
-  className: string;   // "pure" or "impure"
+  classId: number;     // 0 = impure, 1 = pure, 2 = unwanted
+  className: string;   // "impure", "pure", or "unwanted"
   confidence: number;  // 0-1
   color: string;       // hex color for rendering
   insideROI?: boolean; // whether box center is inside ROI
@@ -29,12 +29,14 @@ export interface DetectionResult {
   // Counts (all detected)
   pureCount: number;
   impureCount: number;
+  unwantedCount: number;
   totalCount: number;
   purityPercentage: number;
 
   // ROI-filtered counts
   roiPureCount?: number;
   roiImpureCount?: number;
+  roiUnwantedCount?: number;
   roiTotalCount?: number;
   roiPurityPercentage?: number;
 
