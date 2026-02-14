@@ -29,7 +29,7 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#22c55e", "#ef4444"];
+const COLORS = ["#22c55e", "#ef4444", "#f97316"];
 
 export default function StatisticsPage() {
   const [summary, setSummary] = useState<StatisticsSummary | null>(null);
@@ -71,6 +71,7 @@ export default function StatisticsPage() {
     ? [
       { name: "Pure", value: summary.totalPure },
       { name: "Impure", value: summary.totalImpure },
+      { name: "Unwanted", value: summary.totalUnwanted },
     ]
     : [];
 
@@ -192,7 +193,7 @@ export default function StatisticsPage() {
             <CardTitle>Overall Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            {pieData[0]?.value === 0 && pieData[1]?.value === 0 ? (
+            {pieData.every((d) => d.value === 0) ? (
               <div className="h-64 flex items-center justify-center text-gray-500">
                 No data available
               </div>
@@ -250,7 +251,7 @@ export default function StatisticsPage() {
                   labelFormatter={(value) => `${value}:00`}
                   formatter={(value, name) => [
                     Number(value),
-                    name === "pureCount" ? "Pure" : "Impure",
+                    name === "pureCount" ? "Pure" : name === "impureCount" ? "Impure" : "Unwanted",
                   ]}
                 />
                 <Bar dataKey="pureCount" name="Pure" fill="#22c55e" stackId="a" />
@@ -258,6 +259,12 @@ export default function StatisticsPage() {
                   dataKey="impureCount"
                   name="Impure"
                   fill="#ef4444"
+                  stackId="a"
+                />
+                <Bar
+                  dataKey="unwantedCount"
+                  name="Unwanted"
+                  fill="#f97316"
                   stackId="a"
                 />
               </BarChart>
