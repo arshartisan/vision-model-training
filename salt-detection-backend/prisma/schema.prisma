@@ -19,12 +19,14 @@ model Detection {
   // Detection counts (all detected crystals)
   pureCount        Int
   impureCount      Int
+  unwantedCount    Int           @default(0)
   totalCount       Int
   purityPercentage Float
 
   // ROI-filtered counts (only crystals inside ROI)
   roiPureCount        Int      @default(0)
   roiImpureCount      Int      @default(0)
+  roiUnwantedCount    Int      @default(0)
   roiTotalCount       Int      @default(0)
   roiPurityPercentage Float?
 
@@ -65,8 +67,8 @@ model BoundingBox {
   height      Float
 
   // Classification
-  classId     Int       // 0 = pure, 1 = impure
-  className   String    // "pure" or "impure"
+  classId     Int       // 0 = impure, 1 = pure, 2 = unwanted
+  className   String    // "pure", "impure", or "unwanted"
   confidence  Float     // 0-1
 
   // Whiteness metrics
@@ -86,6 +88,7 @@ model DetectionSession {
   totalFrames      Int         @default(0)
   totalPureCount   Int         @default(0)
   totalImpureCount Int         @default(0)
+  totalUnwantedCount Int       @default(0)
   avgPurityPercent Float?
   totalBatches     Int         @default(0)
 
@@ -128,6 +131,7 @@ model Batch {
   // Batch statistics (only crystals inside ROI)
   pureCount        Int              @default(0)
   impureCount      Int              @default(0)
+  unwantedCount    Int              @default(0)
   totalCount       Int              @default(0)
   purityPercentage Float?
 
